@@ -268,7 +268,17 @@ EL::StatusCode JetCalibrator :: initialize ()
     //
     const std::string stringMeta = wk()->metaData()->castString("SimulationFlavour"); // NB: needs to be defined as sample metadata in job steering macro. Should be either "AFII" or "FullSim"
     if ( stringMeta.empty() ) {
-      Warning("initialize()", "Could not access simulation flavour from EL::Worker. Treating MC as FullSim by default!" );
+      Warning("initialize()", "Could not access simulation flavour from EL::Worker. Checking MCType!" );
+
+      if(m_JESUncertMCType == "AFII"){
+	Warning("initialize()", "Setting AFII" );
+	m_isFullSim = false;
+      }else{
+	Warning("initialize()", "Setting FullSim" );
+	m_isFullSim = true;
+      }
+      //Warning("initialize()", "Could not access simulation flavour from EL::Worker. Treating MC as FastSim by default!" );
+      //m_isFullSim = false;
     } else {
       m_isFullSim = (stringMeta == "AFII") ? false : true;
     }
@@ -331,7 +341,6 @@ EL::StatusCode JetCalibrator :: initialize ()
     m_JESUncertTool->msg().setLevel( MSG::ERROR ); // VERBOSE, INFO, DEBUG
     const CP::SystematicSet recSysts = m_JESUncertTool->recommendedSystematics();
 
-    Info("initialize()"," Initializing Jet Systematics :");
     std::vector<CP::SystematicSet> JESSysList = HelperFunctions::getListofSystematics( recSysts, m_systName, m_systVal );
 
     //for ( const auto& syst_it : JESSysList ){
